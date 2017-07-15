@@ -4,6 +4,7 @@ require 'rack-flash'
 require 'shellwords'
 require 'rack-lineprof'
 require 'pry'
+require 'fileutils'
 
 module Isuconp
   class App < Sinatra::Base
@@ -15,6 +16,9 @@ module Isuconp
     UPLOAD_LIMIT = 10 * 1024 * 1024 # 10mb
 
     POSTS_PER_PAGE = 20
+
+    CURRENT_DIR = File.expand_path(File.dirname(__FILE__))
+    PUBLIC_DIR = "#{CURRENT_DIR}/../public"
 
     helpers do
       def config
@@ -54,6 +58,26 @@ module Isuconp
         sql << 'UPDATE users SET del_flg = 1 WHERE id % 50 = 0'
         sql.each do |s|
           db.prepare(s).execute
+        end
+
+        export_images_to_file
+      end
+
+      def export_images_to_file
+        FileUtils::mkdir_p "#{PUBLIC_DIR}/image"
+
+        sql = "SELECT id, mime, imgdata FROM posts"
+        results = db.prepare(sql).execute
+        results.to_a.each do |post|
+          export_to_file(post, PUBLIC_DIR)
+        end
+      end
+
+      def export_to_file(post, target_dir)
+        filename = image_url(post)
+
+        File.open "#{target_dir}#{filename}", 'w+b' do |f|
+          f.write post[:imgdata]
         end
       end
 
