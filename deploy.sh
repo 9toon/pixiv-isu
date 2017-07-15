@@ -46,7 +46,7 @@ ssh -t -t -i ~/.ssh/$KEY isucon@$IPADDR sh <<SHELL
   sudo chmod 0400 /etc/my.cnf
 
   echo ===== Restart MySQL =====
-  sudo service mysqld restart
+  sudo systemctl restart mysql
 
   echo ===== Copy nginx.conf  =====
     if [ -f /etc/nginx/nginx.conf ]; then
@@ -61,7 +61,7 @@ ssh -t -t -i ~/.ssh/$KEY isucon@$IPADDR sh <<SHELL
   /home/isucon/.local/ruby/bin/bundle install
 
   echo ===== Restart nginx =====
-  sudo /etc/init.d/nginx restart
+  sudo systemctl restart mysql
 
   echo ===== Restart unicorn =====
   sudo systemctl restart isu-ruby
