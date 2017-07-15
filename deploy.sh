@@ -38,12 +38,12 @@ ssh -t -t -i ~/.ssh/$KEY isucon@$IPADDR sh <<SHELL
   sudo sysctl -p
 
   echo ===== Copy my.cnf  =====
-  if [ -f /etc/my.cnf ]; then
-    sudo rm /etc/my.cnf
+  if [ -f /etc/mysql/my.cnf ]; then
+    sudo rm /etc/mysql/my.cnf
   fi
 
-  sudo cp config/my.cnf /etc/my.cnf
-  sudo chmod 0400 /etc/my.cnf
+  sudo cp config/my.cnf /etc/mysql/my.cnf
+  sudo chmod 0400 /etc/mysql/my.cnf
 
   echo ===== Restart MySQL =====
   sudo systemctl restart mysql
