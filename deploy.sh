@@ -61,7 +61,7 @@ ssh -t -t -i ~/.ssh/$KEY isucon@$IPADDR sh <<SHELL
   /home/isucon/.local/ruby/bin/bundle install
 
   echo ===== Restart nginx =====
-  sudo systemctl restart mysql
+  sudo systemctl restart nginx
 
   echo ===== Restart unicorn =====
   sudo systemctl restart isu-ruby
