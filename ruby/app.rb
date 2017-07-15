@@ -66,15 +66,20 @@ module Isuconp
       def export_images_to_file
         FileUtils::mkdir_p "#{PUBLIC_DIR}/image"
 
-        sql = "SELECT id, mime, imgdata FROM posts"
-        results = db.prepare(sql).execute
-        results.to_a.each do |post|
-          export_to_file(post, PUBLIC_DIR)
+        p = 0
+        sql = "SELECT id, mime, imgdata FROM posts LIMIT 500 OFFSET ?"
+        while (p * 500 < 10000) do
+          results = db.prepare(sql).execute(p * 500)
+          results.to_a.each do |post|
+            export_to_file(post, PUBLIC_DIR)
+          end
         end
       end
 
       def export_to_file(post, target_dir)
         filename = image_url(post)
+
+        return unless File.exists? filename
 
         File.open "#{target_dir}#{filename}", 'w+b' do |f|
           f.write post[:imgdata]
