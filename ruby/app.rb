@@ -255,10 +255,13 @@ module Isuconp
     get '/' do
       me = get_session_user()
 
-      results = db.query('select t1.id, t2.id as user_id, t1.body, t1.created_at, t1.mime from posts t1 inner join users t2 on t1.user_id = t2.id where t2.del_flg = 0 order by t1.created_at desc limit 20')
-      posts = make_posts(results)
-
-      erb :index, layout: :layout, locals: { posts: posts, me: me }
+      posts = db.query('select t1.id, t2.id as user_id, t1.body, t1.created_at, t1.mime, t2.account_name from posts t1 inner join users t2 on t1.user_id = t2.id where t2.del_flg = 0 order by t1.created_at desc limit 20')
+      comment_count_results = db.query("select post_id, count(1) as comment_counts from comments where post_id in (#{posts.map{|post| post[:id]}.join(',')}) group by post_id")
+      comment_count = Hash[comment_count_results.map(&:values)]
+      comment_results = db.query("select t1.post_id, t1.comment, t2.account_name from comments t1 inner join users t2 on t1.user_id = t2.id where t1.post_id in (#{posts.map{|post| post[:id]}.join(',')}) order by t1.created_at desc limit 3")
+      comments = comment_results.reduce(Hash.new([])){|total, row| total[row[:post_id]] << {"comment" => row[:comment], "account_name" => row[:account_name]}; total }
+      # posts = make_posts(results)
+      erb :index, layout: :layout, locals: { posts: posts, me: me, comment_count: comment_count, comments: comments }
     end
 
     get '/@:account_name' do
